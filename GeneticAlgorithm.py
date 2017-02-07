@@ -157,9 +157,7 @@ if __name__ == '__main__':
 
     # 最終世代
     ga.assess()
-    best_gene = ga.X_g[ga.val_sorted_index[0]]
-
-    best_gene = np.append(best_gene, ga.values[-1])
+    best_gene = np.append(ga.best_gene(), ga.values[-1])
     np.savetxt("Best_Gene.csv", best_gene, fmt='%.8f', delimiter=',')
 
     # グラフ描画
