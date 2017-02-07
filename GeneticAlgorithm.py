@@ -37,31 +37,16 @@ class GeneticAlgorithm(object):
         self.next_generation = []
 
         """初期値"""
-        self.X = []
-        for i in xrange(self.M):
-            # エンジンの種類
-            e = rand.randint(5)
-            # 機体直径
-            d = 0.05 + rand.rand() * 0.5
-            # 機体長さ
-            L = 0.7 + rand.rand() * 7
-            # 錘質量
-            m_w = rand.rand()
-            # 遺伝子配列
-            x = [e, d, L, m_w]
-            self.X.append(x)
-        self.X = np.array(self.X)
-
-        # 第g世代
-        self.X_g = self.X
+        # 第g世代遺伝子群
+        self.X_g = np.array([[rand.randint(5),              # エンジンの種類
+                             0.05 + rand.rand() * 0.5,      # 機体直径
+                             0.7 + rand.rand() * 7,         # 機体長さ
+                             rand.rand()]                   # 錘質量
+                             for i in xrange(self.M)])
 
     def assess(self):
         """評価"""
-        H = []
-        for xx in self.X_g:
-            H.append(Simulator(xx).MaxAltitude())
-        H = np.array(H)
-
+        H = np.array([Simulator(x).MaxAltitude() for x in self.X_g])
         self.values.append(np.max(H))
         self.value_g = H
         self.val_sorted_index = np.argsort(H)[::-1]
@@ -132,6 +117,7 @@ class GeneticAlgorithm(object):
 
     def best_gene(self):
         """最優秀遺伝子"""
+        self.assess()
         return self.X_g[self.val_sorted_index[0]]
 
 
@@ -139,7 +125,7 @@ if __name__ == '__main__':
 
     """設定"""
     # 計算世代
-    G = 1000
+    G = 50
 
     """計算"""
     ga = GeneticAlgorithm()
@@ -156,9 +142,8 @@ if __name__ == '__main__':
         ga.alternation()
 
     # 最終世代
-    ga.assess()
     best_gene = np.append(ga.best_gene(), ga.values[-1])
-    np.savetxt("Best_Gene.csv", best_gene, fmt='%.8f', delimiter=',')
+    # np.savetxt("Best_Gene.csv", best_gene, fmt='%.8f', delimiter=',')
 
     # グラフ描画
     plt.plot(xrange(G + 1), ga.values)
